@@ -31,8 +31,35 @@ def read_total(ma_total_file):
     return pd.read_csv( ma_total_file, usecols = range(1, 11))
                     
 
-def drop_excess_items(df_large, df_small):
-    pass
+def drop_excess_items(df_total, df_report):
+    date_to_search = df_total.loc[0, ["date_open"]].values
+    if any(df_report[df_report["date_open_report"] == date_to_search[0]]) == True:
+        index_match =  df_report[df_report["date_open_report"] == date_to_search[0]].index 
+        df_report.drop(range(0, index_match[0]), axis= 0, inplace= True)
+        df_report = df_report.reset_index(drop=True)
+        df_report.drop(range(len(df_total), len(df_report)), axis= 0, inplace= True)
+        df_report = df_report.reset_index(drop=True)
+        return df_report
+    else:
+        return "No se encontró la fecha"
+
+
+def generate_not_matches(df_total, df_report, tolencia=1):
+    df = pd.DataFrame()
+
+    for i in df_total.index:
+        
+        if df_total.loc[ i, ["date_open"]].values != df_report.loc[ i, ["date_open_report"]].values.astype(str) \
+        or (df_report.loc[ i, ["diff_report"]].values < df_total.loc[ i, ["diff"]].values - tolencia \
+            or df_report.loc[ i, ["diff_report"]].values > df_total.loc[ i, ["diff"]].values + tolencia):
+
+            value_df_total = pd.DataFrame(df_total.loc[i]).T
+            value_df_report = pd.DataFrame(df_report.loc[i]).T
+            values = pd.concat([value_df_total, value_df_report], axis=1, join='inner')
+            df = pd.concat([df, values])
+
+    return df.to_csv("not_matches_operations.csv")
+
 
 if __name__ == "__main__":
     
@@ -42,8 +69,11 @@ if __name__ == "__main__":
 
     df_report = format_report(read_report(report_mt5_file))
     df_total = read_total(ma_total_file)
-
-    # df_report.to_csv("asdasda.csv")
+    df_report = drop_excess_items(df_total, df_report)
     
-    print( df_report[906:912])
-    print( df_total.head())
+    # df_total.to_csv("df_total.csv")
+    # df_report.to_csv("df_report.csv")
+    # print( df_report.tail())
+    # print( df_total.tail())
+
+    generate_not_matches(df_total, df_report, tolencia=1)
