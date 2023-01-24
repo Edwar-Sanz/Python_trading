@@ -44,7 +44,7 @@ def drop_excess_items(df_total, df_report):
         return "No se encontró la fecha"
 
 
-def generate_not_matches(df_total, df_report, tolencia=1):
+def generate_not_matches(df_total, df_report, tolencia=2):
     df = pd.DataFrame()
 
     for i in df_total.index:
@@ -64,16 +64,13 @@ def generate_not_matches(df_total, df_report, tolencia=1):
 if __name__ == "__main__":
     
 
-    report_mt5_file = "ReportTester-61123378.xlsx"
-    ma_total_file = "3270_3270_totals.csv"
+    report_mt5_file = "data/ReportTester-61123378.xlsx"
+    ma_total_file = "data/4000_4000_10_totals.csv"
 
     df_report = format_report(read_report(report_mt5_file))
     df_total = read_total(ma_total_file)
     df_report = drop_excess_items(df_total, df_report)
     
-    # df_total.to_csv("df_total.csv")
-    # df_report.to_csv("df_report.csv")
-    # print( df_report.tail())
-    # print( df_total.tail())
+    
 
     generate_not_matches(df_total, df_report, tolencia=1)
