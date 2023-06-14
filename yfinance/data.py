@@ -2,8 +2,8 @@ import yfinance as yf
 import pandas as pd
 
 
-asset = yf.Ticker("^GSPC")
-df = asset.history(period="max")
+asset = yf.Ticker("^IXIC")
+df = asset.history(period="max", interval="1mo" )
 df.reset_index(inplace=True)
 
 df = df[["Date", "Open", "High", "Low", "Close"]]
